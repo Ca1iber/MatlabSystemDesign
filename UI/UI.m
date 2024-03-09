@@ -22,7 +22,7 @@ function varargout = UI(varargin)
 
 % Edit the above text to modify the response to help UI
 
-% Last Modified by GUIDE v2.5 08-Mar-2024 21:54:27
+% Last Modified by GUIDE v2.5 09-Mar-2024 22:45:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -72,9 +72,72 @@ function varargout = UI_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-
+%播放预选音频
 % --- Executes on button press in Button1.
 function Button1_Callback(hObject, eventdata, handles)
 % hObject    handle to Button1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+%[y,Fs]=audioread('F:\MATProject\Recording\DingZhen.wav');%更改为相应的路径
+% 从共享变量中获取路径信息
+audioFilePath=handles.audioFilePath;
+[y,Fs]=audioread(audioFilePath);
+sound(y,Fs);
+
+%选择音频
+% --- Executes on button press in pushbutton2.
+function pushbutton2_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[filename, pathname] = uigetfile('F:\MATProject\Recording\*.wav', '选择一个音频文件');%更改为相应的路径
+audioFilePath = fullfile(pathname, filename);
+%存储路径信息到共享变量。将audioFilePath传出去以供其他组件使用
+handles.audioFilePath=audioFilePath;
+guidata(hObject,handles);
+%播放音频
+%[y, Fs] = audioread(audioFilePath);
+%sound(y,Fs);
+
+
+% --- Executes on button press in pushbutton3.
+function pushbutton3_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% 从共享变量中获取路径信息
+audioFilePath=handles.audioFilePath;
+[y,Fs]=audioread(audioFilePath);
+%获得弹出菜单的value值，意为选定了哪一个：时域图or频谱图
+v=get(handles.popupmenu1,'value');
+if v==1
+    %画出时域图
+    fplot(handles.axes1,@sin,[0,2*pi]);
+    title('时域图');
+elseif v==2
+    %画出频谱图
+    fplot(handles.axes1,@sin,[0,4*pi]);
+    title('频谱图');
+end
+
+% --- Executes on selection change in popupmenu1.
+function popupmenu1_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu1 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu1
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
