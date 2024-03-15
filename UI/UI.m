@@ -22,7 +22,7 @@ function varargout = UI(varargin)
 
 % Edit the above text to modify the response to help UI
 
-% Last Modified by GUIDE v2.5 13-Mar-2024 23:08:29
+% Last Modified by GUIDE v2.5 14-Mar-2024 17:23:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -319,3 +319,94 @@ function pushbutton8_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton8 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+clear sound;
+
+
+% --- Executes on selection change in popupmenu6.
+function popupmenu6_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu6 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu6
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu6_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+%变声播放
+% --- Executes on button press in pushbutton9.
+function pushbutton9_Callback(hObject, eventdata, handles)
+%检测是否选择音频，如果没有则出现提示语，同时终止函数                (可复用于其他按钮，检测音频路径的有效性)
+if ~isfield(handles,'audioFilePath')
+    msgbox('请先选择音频再尝试变声播放。', '提示', 'warn');
+    return;
+end
+% 从共享变量中获取路径信息
+audioFilePath=handles.audioFilePath;
+[y,Fs]=audioread(audioFilePath);
+%得到变声音色选择
+Voice=get(handles.popupmenu6,'string');%获得所有的值
+v2=get(handles.popupmenu6,'value');
+SelectedVoice=Voice{v2};
+if v2==1
+    disp('男声');
+elseif v2==2
+    disp('女声');
+elseif v2==3
+    %disp('回声');
+    %disp(audioFilePath);
+    %disp(n1);
+    n1=length(y);
+    y1=y;
+    y1=y1';%转换为行向量
+    geshu=length(y1);
+    echolength=20000;%回声延时间隔
+    int0=zeros(1,echolength);
+    temp1=[y1,int0,int0];%原始声音
+    temp2=[int0,0.3*y1,int0];%第一层回声是原始的0.3倍
+    temp3=[int0,int0,0.1*y1];%第二层回声是原始的0.1倍
+    Echo=temp1+temp2+temp3;
+    NN=length(Echo);
+    sound(Echo,Fs);
+elseif v2==4
+    disp('机器人声');
+    ys=shiftPitch(y,-8);
+    sound(ys,Fs);
+elseif v2==5
+    disp('小黄人声');
+    ys=shiftPitch(y,7);
+    sound(ys,Fs);
+elseif v2==6
+    disp('空谷传响');
+    y1=y;
+    %创建混响对象，PD参数是混响开始前的延迟时间，单位为秒，
+    reverb=reverberator('PreDelay',0.1,'WetDryMix',1);
+    y1=reverb(y1);
+    sound(y1,Fs);
+elseif v2==7
+    disp('电话音');
+    factor = 0.2;
+    y_s = resample(y, round(Fs * factor), Fs);
+    sound(y_s,round(Fs * factor));
+%if SelectedVoice=='男性声音'
+%    disp('男声');
+%elseif SelectedVoice=='女性声音'
+%    disp('女声');
+%elseif SelectedVoice=='开阔回声'
+%    disp('回声');
+%elseif SelectedVoice=="机器人声"
+%    disp('机器');
+%elseif SelectedVoice=="小黄人声"
+%    disp('小黄人');
+end
