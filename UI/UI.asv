@@ -364,18 +364,20 @@ if v2==1
 elseif v2==2
     disp('女声');
 elseif v2==3
-%     n1=length(y);
+    %disp('回声');
+    %disp(audioFilePath);
+    %disp(n1);
+    n1=length(y);
     y1=y(:,1);%转换为单声道
     y1=y1';%转换为行向量
-%     geshu=length(y1);
+    geshu=length(y1);
     echolength=20000;%回声延时间隔
     int0=zeros(1,echolength);
-    temp1=[y1,int0,int0,int0];%原始声音
-    temp2=[int0,0.3*y1,int0,int0];%第一层回声是原始的0.3倍
-    temp3=[int0,int0,0.1*y1,int0];%第二层回声是原始的0.1倍
-%     temp4=[int0,int0,int0,0.05*y1];
+    temp1=[y1,int0,int0];%原始声音
+    temp2=[int0,0.3*y1,int0];%第一层回声是原始的0.3倍
+    temp3=[int0,int0,0.1*y1];%第二层回声是原始的0.1倍
     Echo=temp1+temp2+temp3;
-%     NN=length(Echo);
+    NN=length(Echo);
     sound(Echo,Fs);
 elseif v2==4
     disp('机器人声');
@@ -383,23 +385,14 @@ elseif v2==4
     f0=pitch(y1,Fs);    %计算每小段的基频
     f0_filtered = f0(f0 <= 350);    %滤掉过高的部分
     f00=mean(f0_filtered);      %平均得到基频
-    if f00>205  %判定为女声
-        ys=shiftPitch(y,-16);
-    elseif f00<205  %判定为男声
-        ys=shiftPitch(y,-8);
-    end
+    if f00>205
+        
+    elseif f00<205
+    ys=shiftPitch(y,-8);
     sound(ys,Fs);
 elseif v2==5
     disp('小黄人声');
-    y1=y(:,1);  %提取单声道
-    f0=pitch(y1,Fs);    %计算每小段的基频
-    f0_filtered = f0(f0 <= 350);    %滤掉过高的部分
-    f00=mean(f0_filtered);      %平均得到基频
-    if f00>205  %判定为女声
-        ys=shiftPitch(y,5);    
-    elseif f00<205  %判定为男声
-        ys=shiftPitch(y,13); 
-    end
+    ys=shiftPitch(y,7);
     sound(ys,Fs);
 elseif v2==6
     disp('空谷传响');
