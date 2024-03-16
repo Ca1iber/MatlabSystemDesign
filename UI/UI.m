@@ -22,7 +22,7 @@ function varargout = UI(varargin)
 
 % Edit the above text to modify the response to help UI
 
-% Last Modified by GUIDE v2.5 14-Mar-2024 17:23:56
+% Last Modified by GUIDE v2.5 16-Mar-2024 21:16:09
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -423,4 +423,57 @@ elseif v2==7
 %    disp('机器');
 %elseif SelectedVoice=="小黄人声"
 %    disp('小黄人');
+end
+
+%对选中的音频加噪并输出
+% --- Executes on button press in pushbutton11.
+function pushbutton11_Callback(hObject, eventdata, handles)
+%检测是否选择音频，如果没有则出现提示语，同时终止函数                (可复用于其他按钮，检测音频路径的有效性)
+if ~isfield(handles,'audioFilePath')
+    msgbox('请先选择音频再尝试添加噪声。', '提示', 'warn');
+    return;
+end
+% 从共享变量中获取路径信息
+audioFilePath=handles.audioFilePath;
+[y,Fs]=audioread(audioFilePath);
+v3=get(handles.popupmenu7,'value');
+if v3==1
+    %添加正弦噪声
+    y1=y(:,1);%取单声道
+    y1=y1';%列向量变为行向量
+    noiseAmplitude = 0.2; % 噪声幅度
+    noiseFrequency = 440; % 噪声频率
+    Noise = noiseAmplitude * sin(2 * pi * noiseFrequency * (1:length(y)) / Fs);
+    yn=y1+Noise;
+    sound(yn,Fs);
+    audiowrite('F:\MATProject\Recording\AddNoise.wav',yn,Fs);
+elseif v3==2
+    %添加高斯白噪声
+    Noise=randn(size(y));
+    yn=y+0.05*Noise;
+    sound(yn,Fs);
+    audiowrite('F:\MATProject\Recording\AddNoise.wav',yn,Fs);
+end
+
+
+% --- Executes on selection change in popupmenu7.
+function popupmenu7_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu7 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu7
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu7_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
 end
