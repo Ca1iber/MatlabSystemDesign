@@ -87,7 +87,10 @@ end
 % 从共享变量中获取路径信息
 audioFilePath=handles.audioFilePath;
 [y,Fs]=audioread(audioFilePath);
-sound(y,Fs);
+p=audioplayer(y,Fs);
+play(p);
+disp('a');
+% sound(y,Fs);
 
 %选择音频
 % --- Executes on button press in pushbutton2.

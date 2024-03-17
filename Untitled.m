@@ -1,4 +1,6 @@
 [y, Fs] = audioread('F:\MATProject\Recording\ZhanDouShuang.wav');
+p=audioplayer(y,Fs);
+play(p);
 y=y(:,1);
 y=y';
 noiseAmplitude = 0.2; % 噪声幅度
