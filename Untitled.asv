@@ -1,5 +1,5 @@
 % 读取音频文件
-[y, Fs] = audioread('F:\MATProject\Recording\ZhanDouShuang.wav');
+[y, Fs] = audioread('F:\MATProject\Recording\Reverse.wav');
 
 % 获取音频数据的第一个声道
 data = y(:, 1);

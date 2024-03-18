@@ -170,9 +170,7 @@ audiowrite('F:\MATProject\Recording\Reverse.wav', y_reversed, Fs);
 %退出程序
 % --- Executes on button press in pushbutton6.
 function pushbutton6_Callback(hObject, eventdata, handles)
-warning('off', 'all');
-delete('F:\MATProject\Recording\AddNoise.wav');
-warning('on', 'all');
+
 close all;
 
 
@@ -405,17 +403,15 @@ if v3==1
     audiowrite('F:\MATProject\Recording\AddNoise.wav',yn,Fs);
     handles.NoiseFilePath='F:\MATProject\Recording\AddNoise.wav';
     guidata(hObject,handles);
-    %存储路径信息到共享变量。将NoiseFilePath传出去以供其他组件使用
-%     handles.audioFilePath=audioFilePath;
-%     guidata(hObject,handles);
+    %存储路径信息到共享变量。将audioFilePath传出去以供其他组件使用
+handles.audioFilePath=audioFilePath;
+guidata(hObject,handles);
 elseif v3==2
     %添加高斯白噪声
     Noise=randn(size(y));
     yn=y+0.05*Noise;
     sound(yn,Fs);
     audiowrite('F:\MATProject\Recording\AddNoise.wav',yn,Fs);
-    handles.NoiseFilePath='F:\MATProject\Recording\AddNoise.wav';
-    guidata(hObject,handles);
 end
 
 % --- Executes on selection change in popupmenu9.
@@ -443,32 +439,5 @@ end
 %加噪信号绘图
 % --- Executes on button press in pushbutton15.
 function pushbutton15_Callback(hObject, eventdata, handles)
-%检测是否选择音频，如果没有则出现提示语，同时终止函数                (可复用于其他按钮，检测音频路径的有效性)
-if ~isfield(handles,'NoiseFilePath')
-    msgbox('请先选择音频再尝试添加噪声。', '提示', 'warn');
-    return;
-end
-% 从共享变量中获取路径信息
-NoiseFilePath=handles.NoiseFilePath;
-[y,Fs]=audioread(NoiseFilePath);
-v=get(handles.popupmenu9,'value');
-if v==1
-    t = (0:length(y)-1)/Fs; % 时间向量
-    plot(handles.axes3,t,y);
-    xlabel(handles.axes3,'时间 (s)');
-    ylabel(handles.axes3,'振幅');
-    title(handles.axes3,'加噪时域图'); 
-elseif v==2
-    Y = fft(y);
-    L = length(y);
-    P2 = abs(Y/L);
-    P1 = P2(1:L/2+1);
-    P1(2:end-1) = 2*P1(2:end-1);
-    f = Fs*(0:(L/2))/L;
-    plot(handles.axes3,f,P1);
-    xlabel(handles.axes3,'频率 (Hz)');
-    ylabel(handles.axes3,'|P1(f)|');
-    title(handles.axes3,'加噪频谱图');
-end
 
 
