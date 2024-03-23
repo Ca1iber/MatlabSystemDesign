@@ -22,7 +22,7 @@ function varargout = UI(varargin)
 
 % Edit the above text to modify the response to help UI
 
-% Last Modified by GUIDE v2.5 18-Mar-2024 20:31:33
+% Last Modified by GUIDE v2.5 22-Mar-2024 14:12:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -471,4 +471,17 @@ elseif v==2
     title(handles.axes3,'加噪频谱图');
 end
 
+
+
+%测试
+% --- Executes on button press in pushbutton16.
+function pushbutton16_Callback(hObject, eventdata, handles)
+% 从共享变量中获取路径信息
+audioFilePath=handles.audioFilePath;
+[y,Fs]=audioread(audioFilePath);
+% sound(y,Fs);
+ext=HaoAudioTxt(audioFilePath);
+Text=['识别结果："',ext,'"'];
+disp(Text);
+set(handles.text7,'String',Text);
 
