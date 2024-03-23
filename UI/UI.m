@@ -22,7 +22,7 @@ function varargout = UI(varargin)
 
 % Edit the above text to modify the response to help UI
 
-% Last Modified by GUIDE v2.5 22-Mar-2024 14:12:43
+% Last Modified by GUIDE v2.5 23-Mar-2024 14:49:46
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -476,6 +476,11 @@ end
 %测试
 % --- Executes on button press in pushbutton16.
 function pushbutton16_Callback(hObject, eventdata, handles)
+%检测是否选择音频，如果没有则出现提示语，同时终止函数                (可复用于其他按钮，检测音频路径的有效性)
+if ~isfield(handles,'audioFilePath')
+    msgbox('请先选择音频再尝试语音文字转换。', '提示', 'warn');
+    return;
+end
 % 从共享变量中获取路径信息
 audioFilePath=handles.audioFilePath;
 [y,Fs]=audioread(audioFilePath);
@@ -485,3 +490,27 @@ Text=['识别结果："',ext,'"'];
 disp(Text);
 set(handles.text7,'String',Text);
 
+
+
+% --- Executes on button press in pushbutton17.
+function pushbutton17_Callback(hObject, eventdata, handles)
+% 创建一个音频录制对象
+Recorder=audiorecorder;
+%创建一个进度条
+WB=waitbar(0,'Recording...');
+%开始录音,持续4秒
+record(Recorder);
+for i=1:3
+    pause(1);%暂停一秒
+    waitbar(i/3,WB);%更新进度条
+end
+%停止录制
+stop(Recorder);
+%关闭进度条
+close(WB);
+y=getaudiodata(Recorder);
+audiowrite('F:\MATProject\Recording\4Trans.wav',y,Recorder.SampleRate);
+ext=HaoAudioTxt('F:\MATProject\Recording\4Trans.wav');
+Text=['识别结果："',ext,'"'];
+disp(Text);
+set(handles.text7,'String',Text);
