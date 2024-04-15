@@ -22,7 +22,7 @@ function varargout = UI(varargin)
 
 % Edit the above text to modify the response to help UI
 
-% Last Modified by GUIDE v2.5 23-Mar-2024 14:49:46
+% Last Modified by GUIDE v2.5 04-Apr-2024 20:53:53
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -206,20 +206,59 @@ end
 %得到变速倍率
 Speed=get(handles.popupmenu4,'string');%首先获得所有的值
 v1=get(handles.popupmenu4,'value');%获得空间上对应的value值
-SelectedSpeed=str2double(Speed{v1});
+SelectedSpeed=str2double(Speed{v1});%选中的变速倍率
 
 % 从共享变量中获取路径信息
 audioFilePath=handles.audioFilePath;
 [y,Fs]=audioread(audioFilePath);
-sound(y,Fs*SelectedSpeed);
-%计算新的采样率
-%newFs=Fs*SelectedSpeed;
-%用resample函数对音频进行变速播放
-%y_resampled=resample(y,newFs,Fs);
-%sound(y_resampled,newFs);
+% sound(y,Fs*SelectedSpeed);
 
+%%WSOLA实现变速不变调部分
+L = Fs/1000 * 20;       %计算帧长，以20毫秒为单位
+Nfft = L;               %设置FFT长度为帧长。
+S = L/2;                %设置帧移，这里是50%的重叠，即10毫秒。
+win = hanning (L, 'periodic');  %周期汉宁窗
+delta = round(Fs/1000 * 5);    %分析帧与参考帧之间的偏移量，通常为44.1*5=220.5，每帧移动220个样本
+TSR = 1/SelectedSpeed;             %拉伸长度>1放慢，<1加快
+Sout = S;               %输出帧移
+Sin = round(Sout/TSR);  %输入帧移
 
-% --- Executes on button press in pushbutton8.
+pin=0; pout=0; nseg = 1; %初始化输出输入位置
+inlen = length(y);          %ez
+outlen = ceil(TSR*inlen+delta); %计算输出信号的长度
+output_signal = zeros(outlen,1);%初始化输出信号
+synthesis_frame = zeros(L,1);%初始化合成帧
+deltas = [];                %用于存储delta的数组
+output_signal(pout+1:pout+L) = y(pin+1:pin+L);%将输入信号的一部分复制到输出信号中。
+pref = pin + Sout;                              %更新输入和输出的位置。
+pin = pin + Sin;                                %|
+pout = pout + Sout;                             %更新输入和输出的位置。
+
+while ( (pref + L) < inlen ) && ( (pin+L+delta) < inlen )    %开始主要的处理循环，直到输入信号处理完毕。
+    reference_frame = y(pref+1:pref+L);                      %获取参考帧
+    analysis_frame = y(pin+1-delta:pin+L+delta);             %获取分析帧，加上了delta。
+    [ xc, lags ] = xcorr(analysis_frame, reference_frame, 2*delta);%计算分析帧和参考帧的互相关。
+    aligned = 2*delta+1;                                    %选择相关结果中的合适部分。
+    xc_delta = xc(aligned:aligned+2*delta);                 
+    [ ~, i ] = max(abs(xc_delta));                          %找到互相关最大值的索引。
+
+    xc_rms = rms(buffer(analysis_frame(1:L+2*delta),L,L-1,'nodelay'));%计算帧的均方根。
+    [ ~, i ] = max(abs(xc_delta./xc_rms')); %使用归一化的互相关结果找到最大值的索引。
+    idx = i-1;                              %得到delta。
+    deltas = [ deltas idx ];                %将delta添加到数组中。
+    synthesis_frame = analysis_frame(idx+1:idx+L);%将根据delta选择合成帧。
+	output_signal(pout+1:pout+L) = ...      %
+        output_signal(pout+1:pout+L) + synthesis_frame .* win;  %将合成帧加到输出信号中。 
+    pref = pin - delta + idx + Sout;    %更新输入和输出的位置。
+    pin = pin + Sin;    
+    pout = pout + Sout;
+    nseg = nseg + 1;    %增加片段计数器。
+end
+
+n_seg = nseg - 1;   %计算片段数
+
+sound(output_signal(1:outlen),Fs);
+%% --- Executes on button press in pushbutton8.
 function pushbutton8_Callback(hObject, eventdata, handles)
 
 clear sound;
@@ -514,3 +553,11 @@ ext=HaoAudioTxt('F:\MATProject\Recording\4Trans.wav');
 Text=['识别结果："',ext,'"'];
 disp(Text);
 set(handles.text7,'String',Text);
+
+
+
+
+%打开文字转语音API
+function pushbutton18_Callback(hObject, eventdata, handles)
+disp('打开');
+winopen('F:\GPT_SoVITS\GPT-SoVITS-beta0217\go-inferencewebui1.bat');
