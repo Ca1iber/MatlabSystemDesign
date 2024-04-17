@@ -22,7 +22,7 @@ function varargout = UI(varargin)
 
 % Edit the above text to modify the response to help UI
 
-% Last Modified by GUIDE v2.5 04-Apr-2024 20:53:53
+% Last Modified by GUIDE v2.5 17-Apr-2024 20:05:26
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -258,7 +258,7 @@ end
 n_seg = nseg - 1;   %计算片段数
 
 sound(output_signal(1:outlen),Fs);
-%% --- Executes on button press in pushbutton8.
+% --- Executes on button press in pushbutton8.
 function pushbutton8_Callback(hObject, eventdata, handles)
 
 clear sound;
@@ -561,3 +561,37 @@ set(handles.text7,'String',Text);
 function pushbutton18_Callback(hObject, eventdata, handles)
 disp('打开');
 winopen('F:\GPT_SoVITS\GPT-SoVITS-beta0217\go-inferencewebui1.bat');
+
+
+% --- Executes on button press in pushbutton19.
+function pushbutton19_Callback(hObject, eventdata, handles)
+tartext=handles.tartext;
+a=tartext;
+save('TempData','a');
+system('python tts.py');
+msgbox('语音转换完成!!!!','提示');
+
+
+function edit4_Callback(hObject, eventdata, handles)
+tartext=get(hObject,'string');%将静态文本框中的输出传出去
+handles.tartext=tartext;
+guidata(hObject,handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function edit4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton20.
+function pushbutton20_Callback(hObject, eventdata, handles)
+[y,Fs]=audioread("F:\MATProject\result.wav");
+sound(y,Fs);
