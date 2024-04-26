@@ -22,7 +22,7 @@ function varargout = UI(varargin)
 
 % Edit the above text to modify the response to help UI
 
-% Last Modified by GUIDE v2.5 17-Apr-2024 20:05:26
+% Last Modified by GUIDE v2.5 26-Apr-2024 18:55:22
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -218,7 +218,7 @@ L = Fs/1000 * 20;       %计算帧长，以20毫秒为单位
 Nfft = L;               %设置FFT长度为帧长。
 S = L/2;                %设置帧移，这里是50%的重叠，即10毫秒。
 win = hanning (L, 'periodic');  %周期汉宁窗
-delta = round(Fs/1000 * 5);    %分析帧与参考帧之间的偏移量，通常为44.1*5=220.5，每帧移动220个样本
+delta = round(Fs/1000 * 5);    %分析帧与参考帧之间的偏移量，通常为
 TSR = 1/SelectedSpeed;             %拉伸长度>1放慢，<1加快
 Sout = S;               %输出帧移
 Sin = round(Sout/TSR);  %输入帧移
@@ -258,6 +258,8 @@ end
 n_seg = nseg - 1;   %计算片段数
 
 sound(output_signal(1:outlen),Fs);
+% outputFilePath='C:\Users\Calibrum\Desktop\Output.wav';
+% audiowrite(outputFilePath,output_signal(1:outlen),Fs);
 % --- Executes on button press in pushbutton8.
 function pushbutton8_Callback(hObject, eventdata, handles)
 
@@ -595,3 +597,8 @@ end
 function pushbutton20_Callback(hObject, eventdata, handles)
 [y,Fs]=audioread("F:\MATProject\result.wav");
 sound(y,Fs);
+
+
+% --- Executes on button press in pushbutton21.
+function pushbutton21_Callback(hObject, eventdata, handles)
+GeminiAPI;

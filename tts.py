@@ -8,7 +8,7 @@ print(targetText)
 
 realtar=str(targetText)
 print(realtar)
-#testtar='卧槽你大爷'
+#testtar=''
 #print(testtar)
 
 IS_PY3 = sys.version_info.major == 3
